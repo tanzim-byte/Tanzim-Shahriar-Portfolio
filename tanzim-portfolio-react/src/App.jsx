@@ -56,7 +56,7 @@ const CASES = [
     stats: [['$0.37', 'avg cost / follow'], ['$10.28', 'avg CPM']],
     chart: {
       horizontal: true,
-      labels: ['Impressions', 'Video views', 'Followers'],
+      labels: [['Impressions', '5.49M'], ['Video views', '5.16M'], ['Followers', '152,405']],
       data: [5492837, 5162922, 152405],
       colors: [ACCENT_SOFT, ACCENT_SOFT, ACCENT],
     },
@@ -69,7 +69,7 @@ const CASES = [
     stats: [['$2.14', 'cost / lead'], ['123,680', 'reach']],
     chart: {
       horizontal: true,
-      labels: ['Impressions', 'Reach', 'Link clicks', 'Leads'],
+      labels: [['Impressions', '230,194'], ['Reach', '123,680'], ['Link clicks', '3,910'], ['Leads', '1,846']],
       data: [230194, 123680, 3910, 1846],
       colors: [ACCENT_SOFT, ACCENT_SOFT, ACCENT_SOFT, ACCENT],
     },
@@ -78,11 +78,11 @@ const CASES = [
     client: 'Xtreme Wireless',
     channel: 'Google Ads · Boost Mobile retail',
     title: '605 phone calls for a local retailer',
-    body: <>High-intent search campaigns for phone sales and repairs. 4,840 clicks produced <strong>605 phone calls and 155 tracked conversions</strong> — a <strong>3.2% conversion rate</strong> with every phone call costing under $11.</>,
+    body: <>High-intent search campaigns for phone sales and repairs. 4,840 clicks produced <strong>605 phone calls and 155 tracked conversions</strong>: a <strong>3.2% conversion rate</strong> with every phone call costing under $11.</>,
     stats: [['3.2%', 'conversion rate'], ['$42', 'cost / conversion'], ['$10.78', 'cost / phone call']],
     chart: {
       horizontal: true,
-      labels: ['Clicks', 'Phone calls', 'Conversions'],
+      labels: [['Clicks', '4,840'], ['Phone calls', '605'], ['Conversions', '155']],
       data: [4840, 605, 155],
       colors: [ACCENT_SOFT, ACCENT, ACCENT],
     },
@@ -295,7 +295,7 @@ function CaseChart({ config, theme }) {
       type: 'bar',
       data: {
         labels,
-        datasets: [{ data, backgroundColor: colors, borderRadius: 7, barThickness: horizontal ? 24 : 22 }],
+        datasets: [{ data, backgroundColor: colors, borderRadius: 7, barThickness: horizontal ? 24 : 22, minBarLength: 4 }],
       },
       options: {
         indexAxis: horizontal ? 'y' : 'x',
@@ -317,12 +317,17 @@ function CaseChart({ config, theme }) {
         },
         scales: {
           x: {
+            type: horizontal ? 'logarithmic' : 'category',
             grid: { color: horizontal ? t.grid : 'transparent' },
             border: { display: false },
             ticks: {
               color: t.faint,
               font: { family: "'JetBrains Mono', monospace", size: 10 },
-              callback: function (v) { return horizontal ? abbr(v) : this.getLabelForValue(v) },
+              callback: function (v) {
+                if (!horizontal) return this.getLabelForValue(v)
+                const lg = Math.log10(v)
+                return Number.isInteger(lg) ? abbr(v) : null
+              },
             },
           },
           y: {
@@ -346,7 +351,7 @@ function CaseChart({ config, theme }) {
 
   return (
     <div className="relative h-[190px]">
-      <canvas ref={canvasRef} role="img" aria-label={`${config.labels.join(', ')} chart`} />
+      <canvas ref={canvasRef} role="img" aria-label={`${config.labels.map((l) => (Array.isArray(l) ? l[0] : l)).join(', ')} chart`} />
     </div>
   )
 }
@@ -512,7 +517,7 @@ function Services() {
                     aria-hidden
                   >+</span>
                 </button>
-                <div className="overflow-hidden transition-all duration-[450ms]" style={{ maxHeight: isOpen ? '400px' : '0px' }}>
+                <div className="overflow-hidden transition-all duration-[450ms]" style={{ maxHeight: isOpen ? '640px' : '0px' }}>
                   <div className="px-6 md:pl-[86px] md:pr-[30px] pb-[30px]">
                     <p className="max-w-[640px] mb-[18px] text-base" style={{ color: isOpen ? 'rgba(255,255,255,0.88)' : 'var(--dim)' }}>{s.body}</p>
                     <div className="flex flex-wrap gap-2">
@@ -559,10 +564,10 @@ function Results({ theme }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {CASES.map((c, i) => (
-            <Reveal as="article" key={c.client} delay={(i % 2) * 0.08} className="card-surface p-[30px]" style={{ background: 'var(--bg)' }} {...tilt}>
-              <div className="flex justify-between items-start gap-3.5 mb-2">
-                <span className="tag-outline whitespace-nowrap">{c.client}</span>
-                <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] pt-2 text-right" style={{ color: 'var(--faint)' }}>{c.channel}</span>
+            <Reveal as="article" key={c.client} delay={(i % 2) * 0.08} className="card-surface p-5 sm:p-[30px]" style={{ background: 'var(--bg)' }} {...tilt}>
+              <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2 sm:gap-3.5 mb-2">
+                <span className="tag-outline">{c.client}</span>
+                <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] sm:pt-2 sm:text-right" style={{ color: 'var(--faint)' }}>{c.channel}</span>
               </div>
               <h3 className="font-bold text-[22px] tracking-tight mt-2.5 mb-2">{c.title}</h3>
               <p className="text-[15px] mb-[18px] [&>strong]:font-semibold [&>strong]:!text-[var(--text)]" style={{ color: 'var(--dim)' }}>{c.body}</p>
@@ -577,7 +582,7 @@ function Results({ theme }) {
         </div>
 
         <p className="text-center font-mono text-[11px] uppercase tracking-[0.08em] mt-[26px] leading-loose" style={{ color: 'var(--faint)' }}>
-          Also proven on TikTok: Sporcle — 753K video views, 927 clicks, $0.22 per paid follower · BPI Sports — 6,119 follows at $0.16 each
+          Also proven on TikTok: Sporcle (753K video views, 927 clicks, $0.22 per paid follower) · BPI Sports (6,119 follows at $0.16 each)
         </p>
       </div>
     </section>
@@ -657,8 +662,9 @@ function Frameworks() {
           <span>Deployed lead-acquisition frameworks</span>
           <span>Volumes and bids: estimated monthly ranges</span>
         </Reveal>
+        <p className="md:hidden font-mono text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--faint)' }}>Swipe horizontally to view the full table</p>
         <Reveal className="overflow-x-auto rounded-card border" style={{ borderColor: 'var(--line-strong)', background: 'var(--bg-soft)' }}>
-          <table className="w-full min-w-[800px] border-collapse">
+          <table className="w-full min-w-[720px] border-collapse">
             <thead>
               <tr>
                 {['Target vertical', 'Strategic keyword bids', 'Monthly vol.', 'Bid range', 'Ad copy hook strategy'].map((h) => (
@@ -757,7 +763,7 @@ function Contact() {
             If you're spending on Google or Meta and can't name your cost per lead, that's the first conversation to have. It costs nothing to find out.
           </p>
           <div className="flex justify-center gap-3.5 flex-wrap">
-            <a href="mailto:tanzim@socialengagementgroup.com" className="pill" style={{ background: '#1d1d1b', color: '#f2ece5' }}>
+            <a href="mailto:tanzim@socialengagementgroup.com" className="pill max-w-full break-all text-[13px] sm:text-[14.5px]" style={{ background: '#1d1d1b', color: '#f2ece5' }}>
               tanzim@socialengagementgroup.com
             </a>
             <a href="https://www.linkedin.com/in/tanzim-shahriar-utsab-575014356/" target="_blank" rel="noopener noreferrer" className="pill border !border-white/[0.55] text-white hover:!border-white">
