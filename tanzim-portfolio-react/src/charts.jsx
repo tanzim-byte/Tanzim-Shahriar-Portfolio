@@ -728,6 +728,269 @@ export function PairedBars({ caption, note, groups }) {
 }
 
 /* ==========================================================================
+   9. TREND GRID — several metrics across the same months, as sparks
+   ========================================================================== */
+
+export function TrendGrid({ config }) {
+  const [ref, inView] = useInView(0.25)
+  return (
+    <Frame caption={config.caption} note={config.note}>
+      <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+        {config.series.map((ser, si) => {
+          const lo = Math.min(...ser.values)
+          const hi = Math.max(...ser.values)
+          const span = hi - lo || 1
+          // For "lower is better" metrics, flip so improvement always rises.
+          const norm = (v) => {
+            const t = (v - lo) / span
+            return ser.invert ? 1 - t : t
+          }
+          const pts = ser.values.map((v, i) => {
+            const x = (i / (ser.values.length - 1)) * 100
+            const y = 34 - norm(v) * 28
+            return `${x},${y}`
+          })
+          const col = toneOf(ser.tone)
+          return (
+            <div key={ser.key}>
+              <div className="flex items-baseline justify-between gap-3 mb-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--faint)' }}>
+                  {ser.key}
+                </span>
+                <span className="font-mono text-[13px] font-medium tabular-nums" style={{ color: col }}>
+                  {ser.fmt(ser.values[ser.values.length - 1])}
+                </span>
+              </div>
+              {/* Line is stretched to fill the card, so the dots are HTML —
+                  circles inside a preserveAspectRatio="none" SVG distort. */}
+              <div className="relative w-full h-[44px]">
+                <svg
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  className="absolute inset-0 w-full h-full"
+                  role="presentation"
+                  style={{
+                    clipPath: inView || REDUCED_MOTION ? 'inset(0 0 0 0)' : 'inset(0 100% 0 0)',
+                    transition: REDUCED_MOTION ? 'none' : `clip-path 1.1s cubic-bezier(0.22,1,0.36,1) ${si * 0.12}s`,
+                  }}
+                >
+                  <polyline
+                    points={pts.join(' ')}
+                    fill="none"
+                    stroke={col}
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </svg>
+                {ser.values.map((v, i) => {
+                  const last = i === ser.values.length - 1
+                  return (
+                    <span
+                      key={i}
+                      className="absolute rounded-full -translate-x-1/2 -translate-y-1/2"
+                      style={{
+                        left: `${(i / (ser.values.length - 1)) * 100}%`,
+                        top: `${((34 - norm(v) * 28) / 40) * 100}%`,
+                        width: last ? 7 : 4,
+                        height: last ? 7 : 4,
+                        background: last ? col : 'var(--chart-track)',
+                        boxShadow: last ? `0 0 10px ${col}` : 'none',
+                        opacity: inView ? 1 : 0,
+                        transition: REDUCED_MOTION
+                          ? 'none'
+                          : `opacity .5s ease ${si * 0.12 + i * 0.1}s`,
+                      }}
+                      aria-hidden
+                    />
+                  )
+                })}
+              </div>
+              <div className="flex justify-between mt-1">
+                {config.months.map((m, i) => (
+                  <span
+                    key={m}
+                    className="font-mono text-[9.5px]"
+                    style={{ color: i === config.months.length - 1 ? 'var(--dim)' : 'var(--faint)' }}
+                  >
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <DataTable
+        caption={config.caption}
+        head={['Metric', ...config.months]}
+        rows={config.series.map((ser) => [ser.key, ...ser.values.map((v) => ser.fmt(v))])}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
+   10. RANK LIST — the order Google listed the firms
+   ========================================================================== */
+
+export function RankList({ rows, caption }) {
+  const [ref, inView] = useInView(0.3)
+  return (
+    <Frame caption={caption}>
+      <ol ref={ref} className="list-none m-0 p-0 flex flex-col gap-2">
+        {rows.map((r, i) => (
+          <li
+            key={r.name}
+            className="flex items-center gap-3 rounded-xl px-4 py-3"
+            style={{
+              background: r.us ? 'color-mix(in srgb, var(--ember) 12%, transparent)' : 'var(--bg-soft)',
+              border: r.us
+                ? '1px solid color-mix(in srgb, var(--ember) 45%, transparent)'
+                : '1px solid var(--line)',
+              opacity: inView ? 1 : 0,
+              transform: inView || REDUCED_MOTION ? 'none' : 'translateX(-10px)',
+              transition: REDUCED_MOTION ? 'none' : `opacity .5s ease ${i * 0.09}s, transform .5s ease ${i * 0.09}s`,
+            }}
+          >
+            <span
+              className="w-7 h-7 rounded-full inline-flex items-center justify-center font-mono text-[12px] font-medium shrink-0"
+              style={{
+                background: r.us ? 'var(--ember)' : 'transparent',
+                color: r.us ? 'var(--on-ember)' : 'var(--faint)',
+                border: r.us ? 'none' : '1px solid var(--line-strong)',
+              }}
+            >
+              {r.pos}
+            </span>
+            <span
+              className="text-[14.5px] font-semibold"
+              style={{ color: r.us ? 'var(--text)' : 'var(--dim)' }}
+            >
+              {r.name}
+            </span>
+            {r.us && (
+              <span
+                className="ml-auto font-mono text-[9.5px] uppercase tracking-[0.14em]"
+                style={{ color: 'var(--accent-ink)' }}
+              >
+                the client
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+      <DataTable
+        caption={caption}
+        head={['Position', 'Law firm']}
+        rows={rows.map((r) => [String(r.pos), r.name])}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
+   11. PAGE BARS — top landing pages by visits
+   ========================================================================== */
+
+export function PageBars({ config }) {
+  const [ref, inView] = useInView(0.25)
+  const max = Math.max(...config.rows.map((r) => r.value))
+  return (
+    <Frame caption={config.caption} note={config.note}>
+      <div ref={ref} className="flex flex-col gap-3">
+        {config.rows.map((r, i) => (
+          <div key={r.label} className="grid grid-cols-[1fr_52px] items-center gap-3">
+            <div>
+              <div className="text-[13.5px] mb-1.5" style={{ color: i === 0 ? 'var(--text)' : 'var(--dim)' }}>
+                {r.label}
+              </div>
+              <div className="relative h-[10px]">
+                <div className="absolute inset-0 rounded-full" style={{ background: 'var(--chart-track)' }} />
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full"
+                  style={{
+                    width: inView ? `${(r.value / max) * 100}%` : '0%',
+                    background:
+                      i === 0
+                        ? 'linear-gradient(90deg, var(--ember), var(--gold))'
+                        : 'color-mix(in srgb, var(--ember) 55%, transparent)',
+                    transition: REDUCED_MOTION
+                      ? 'none'
+                      : `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s`,
+                  }}
+                />
+              </div>
+            </div>
+            <span className="font-mono text-[14px] tabular-nums text-right">{r.value}</span>
+          </div>
+        ))}
+      </div>
+      <DataTable
+        caption={config.caption}
+        head={['Page', 'Visits']}
+        rows={config.rows.map((r) => [r.label, String(r.value)])}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
+   12. OPPORTUNITY — high volume, low rank
+   ========================================================================== */
+
+export function Opportunity({ config }) {
+  const [ref, inView] = useInView(0.25)
+  const max = Math.max(...config.rows.map((r) => r.shown))
+  return (
+    <Frame caption={config.caption} note="times shown vs current rank">
+      <div ref={ref} className="flex flex-col gap-4">
+        {config.rows.map((r, i) => (
+          <div key={r.term}>
+            <div className="flex items-baseline justify-between gap-3 mb-1.5">
+              <span className="text-[13.5px] font-medium">&ldquo;{r.term}&rdquo;</span>
+              <span
+                className="font-mono text-[10px] uppercase tracking-[0.1em] shrink-0 px-2 py-1 rounded"
+                style={{
+                  color: 'var(--red-ink)',
+                  background: 'color-mix(in srgb, var(--red-ink) 12%, transparent)',
+                }}
+              >
+                {r.rank}
+              </span>
+            </div>
+            <div className="grid grid-cols-[1fr_62px] items-center gap-3">
+              <div className="relative h-[8px]">
+                <div className="absolute inset-0 rounded-full" style={{ background: 'var(--chart-track)' }} />
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full"
+                  style={{
+                    width: inView ? `${(r.shown / max) * 100}%` : '0%',
+                    background: 'linear-gradient(90deg, var(--violet), var(--cyan))',
+                    transition: REDUCED_MOTION
+                      ? 'none'
+                      : `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 0.09}s`,
+                  }}
+                />
+              </div>
+              <span className="font-mono text-[12.5px] tabular-nums text-right">
+                {(r.shown / 1000).toFixed(1)}K
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <DataTable
+        caption={config.caption}
+        head={['Search term', 'Times shown', 'Current rank']}
+        rows={config.rows.map((r) => [r.term, r.shown.toLocaleString('en-US'), r.rank])}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
    ROUTER
    ========================================================================== */
 

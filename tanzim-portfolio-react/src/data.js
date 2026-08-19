@@ -5,7 +5,7 @@
 export const NAV = [
   ['#services', 'Services'],
   ['#results', 'Results'],
-  ['#diagnosis', 'Diagnosis'],
+  ['#mfc', 'MFC Law'],
   ['#process', 'Process'],
   ['#about', 'About'],
   ['#playbooks', 'Playbooks'],
@@ -308,79 +308,148 @@ export const CLIENTS = [
 ]
 
 /* ==========================================================================
-   AUDIT + TREND
-   MFC: figures from the Google Ads audit, Jun 1-17 2026, and the May 2026
-   call-recording review. No post-fix outcome is claimed - the remediation
-   plan is built, not yet live in the account.
-   Flame: two consecutive measured windows from Search Console. Trend only,
-   no cause attributed.
+   MFC LAW — ORGANIC SEARCH SHOWCASE
+   Source: MFC_Law_organic_search_report_July2026.pptx (Google Search Console,
+   last 3 months through 27 Jul 2026). Figures transcribed from the report.
    ========================================================================== */
 
-export const AUDIT = {
-  client: 'The Law Offices of Michael F. Campopiano',
-  channel: 'Google Ads · Personal injury',
-  period: 'Audit period · Jun 1–17, 2026',
-  title: '$1,341 of spend, 20 phone calls, zero injury cases',
-  body: 'A personal-injury firm paying for criminal, housing, small-claims and competitor-brand searches. I reviewed every call recording against the ad account, found where the budget was leaking, and built the remediation plan.',
-  headline: [
-    { value: '$1,341', label: 'spent in 17 days' },
-    { value: '20', label: 'phone calls' },
-    { value: '0', label: 'qualified injury cases', bad: true },
+export const MFC = {
+  eyebrow: 'Monthly report · mfclaw.com',
+  channel: 'Organic Google Search',
+  title: 'How Rhode Island is finding your firm on Google',
+  lede: 'A quarter of organic search work for a Providence personal-injury firm. Every metric moved the right way, and the wins are on searches strangers type, not just the firm name.',
+  period: 'Last 3 months · through Jul 27, 2026',
+
+  kpis: [
+    { label: 'Visits from search', value: 202, from: '114', delta: '+77%', tone: 'ember' },
+    { label: 'Times shown', value: 134960, display: '135K', from: '113K', delta: '+19%', tone: 'gold' },
+    { label: 'Click rate', value: 0.15, display: '0.15%', from: '0.10%', delta: '+48%', tone: 'cyan' },
+    { label: 'Average position', value: 24.7, display: '24.7', from: '28.3', delta: '↑ 3.6', tone: 'violet', note: 'lower is better' },
   ],
-  metrics: [
-    ['Clicks', '75'],
-    ['Avg. cost per click', '$17.88'],
-    ['Cost per phone call', '$67.06'],
-    ['Calls reviewed / qualified', '19 / 0'],
-    ['Impression share', '16.9%'],
-    ['Morgan & Morgan impression share', '35.1%'],
-    ['Top-of-page rate', '39.6%'],
-  ],
-  /* Google reported 12 conversions; none were a case the firm took. */
-  signal: {
-    caption: 'What the account was optimising toward',
-    reported: 12,
-    real: 0,
-    note: 'Google counted 12 conversions across the period. None was an accident case the firm took, so bidding was being trained on junk.',
+
+  trend: {
+    caption: 'Three months, one direction',
+    note: 'July measured to the 27th',
+    months: ['May', 'June', 'July'],
+    series: [
+      { key: 'Visits', values: [114, 159, 202], fmt: (v) => v.toLocaleString('en-US'), tone: 'ember' },
+      { key: 'Times shown', values: [113077, 109927, 134960], fmt: (v) => `${Math.round(v / 1000)}K`, tone: 'gold' },
+      { key: 'Click rate', values: [0.101, 0.145, 0.15], fmt: (v) => `${v}%`, tone: 'cyan' },
+      { key: 'Avg. position', values: [28.3, 25.7, 24.7], fmt: (v) => `${v}`, tone: 'violet', invert: true },
+    ],
+    takeaway:
+      'More people are seeing the firm, a larger share of them are clicking, and the site sits higher on the page than it did in May. Those three compound.',
   },
-  spend: {
-    caption: 'Where the identified spend went',
-    note: '$890 of $1,341 traced to six keywords',
+
+  showcase: {
+    tag: 'Showcase · Hit-and-run',
+    title: 'Page one for Rhode Island hit-and-run, and first law firm in this search',
+    body: 'For "RI hit and run accidents," mfclaw.com came back as the first law-firm result, ahead of every competing firm on the page. Across the quarter the page averages position 7.71.',
+    stats: [
+      ['29', 'visits from hit-and-run searches'],
+      ['1.67%', 'click rate — 12× the site-wide average'],
+      ['7.71', 'average position across the quarter'],
+    ],
+    image: '/serp-mfc.png',
+    imageAlt:
+      'Google result for mfclaw.com titled "Hit-and-Run Accident in Rhode Island: What to Do | MFC Law"',
+    competitorsImage: '/serp-competitors.png',
+    competitorsAlt:
+      'The three competing law firm results listed below MFC Law on the same Google page',
+    ranking: [
+      { pos: 1, name: 'MFC Law', us: true },
+      { pos: 2, name: 'Marin & Murphy' },
+      { pos: 3, name: 'Gemma Law' },
+      { pos: 4, name: 'Louis Grande' },
+    ],
+    snippet:
+      'Leaving the scene of a crash involving injury is a felony in Rhode Island, punishable by up to five years in prison, fines, and license revocation.',
+    snippetNote:
+      'That is the exact answer to the top question Google lists for this search, which is why the page earns clicks well above the site average.',
+    disclaimer:
+      'Screenshots: one search on Jul 29, 2026. Google personalises results by location and history, so a Rhode Island searcher may see a different order.',
+  },
+
+  pages: {
+    caption: 'The pages doing the work',
+    note: 'visits from Google search, last 3 months',
     rows: [
-      { label: 'accident injury law firm', value: 261.4, calls: 5, verdict: 'Pause' },
-      { label: 'personal injury lawyer RI', value: 235.22, calls: 3, verdict: 'To Exact' },
-      { label: 'motor vehicle lawyer', value: 157.77, calls: 3, verdict: 'To Exact' },
-      { label: 'accident case law', value: 128.03, calls: 2, verdict: 'Pause' },
-      { label: 'injury lawyer firm', value: 103.72, calls: 1, verdict: 'Pause' },
-      { label: 'accident lawyer', value: 3.98, calls: 0, verdict: 'Exact only' },
+      { label: 'Homepage', value: 195 },
+      { label: 'Guide: Personal Injury Protection in MA', value: 63 },
+      { label: 'Guide: MA Tort Threshold Rules', value: 47 },
+      { label: 'RI Hit-and-Run Accidents', value: 29 },
+      { label: 'Guide: Insurance Bad Faith in RI', value: 9 },
     ],
   },
-  findings: [
-    ['109 negative keywords', 'Criminal, DUI, family, housing, small-claims, insurance-billing and job searches — the exact traffic heard in the recordings.'],
-    ['61 competitor-name negatives', 'Around 60 of the visible search terms were people searching a rival attorney by name.'],
-    ['3 vague head terms to pause', 'Including the highest-spending keyword in the account at $261.'],
-    ['13 accident-intent keywords to add', 'Car, motorcycle, truck, rideshare, pedestrian, slip and fall, dog bite.'],
-    ['Conversion tracking rebuilt', 'Count a lead only on calls over 60–90 seconds, with qualified status imported.'],
-  ],
-  status: 'Findings delivered June 2026. Remediation plan built and ready to deploy.',
-}
 
-export const TREND = {
-  client: 'Flame Japanese Hibachi',
-  channel: 'Organic search · Restaurant',
-  label: 'Growth trend',
-  title: 'Organic clicks up 31.9% across two measured windows',
-  body: 'Two consecutive 17-day windows from Google Search Console on an account under active management. Clicks rose faster than impressions, so the gain came from click-through and position rather than search volume alone. Shown as a trend: no single change is credited for the lift.',
-  windows: [
-    { name: 'Window 1', period: 'Jun 14–30, 2026', clicks: 4081, impressions: 73137, ctr: 5.58, position: 5.48 },
-    { name: 'Window 2', period: 'Jul 2–18, 2026', clicks: 5383, impressions: 85080, ctr: 6.33, position: 5.18 },
+  reach: {
+    headline: '114',
+    headlineLabel: 'non-branded searches ranking in the top 10',
+    body: 'Not just the firm name. These are searches strangers type, grouped by the kind of case they describe.',
+    groups: [
+      {
+        name: 'Injury & premises',
+        terms: [
+          ['personal injury attorney', 1.3, 1752],
+          ['injury lawyer', 1.1, 640],
+          ['providence dog bite injury attorney', 9.4, 432],
+          ['providence pedestrian accident attorney', 7.9, 391],
+        ],
+      },
+      {
+        name: 'Car accidents',
+        terms: [
+          ['car accident lawyer', 10.0, 1423],
+          ['car accident attorney', 6.9, 871],
+          ['cranston car accident attorneys', 7.1, 631],
+          ['hit and run rhode island', 3.1, 46],
+        ],
+      },
+      {
+        name: 'Rideshare',
+        terms: [
+          ['uber & lyft accident lawyer', 10.0, 1450],
+          ['lyft accident lawyer near me', 9.9, 1397],
+          ['rideshare accident lawyer near me', 9.8, 1162],
+        ],
+      },
+      {
+        name: 'Product liability',
+        terms: [
+          ['product liability attorney', 9.3, 1187],
+          ['providence product liability attorney', 7.0, 1016],
+          ['product liability lawyer', 9.6, 1009],
+          ['product liability law firm', 7.0, 454],
+        ],
+      },
+    ],
+    note: 'Most sit at the bottom of page one (positions 7–10), which is why they are not earning clicks yet.',
+  },
+
+  opportunity: {
+    caption: 'Where the next wins are',
+    body: 'Seen tens of thousands of times, but ranked on page 2–4, so the clicks go elsewhere. Moving these up is the biggest lever.',
+    rows: [
+      { term: 'providence car accident lawyer', shown: 16700, rank: 'page 4', page: 4 },
+      { term: 'rhode island motorcycle accident lawyer', shown: 16200, rank: 'page 4', page: 4 },
+      { term: 'warwick slip and fall lawyer', shown: 12560, rank: 'page 3', page: 3 },
+      { term: 'providence Uber & Lyft accident lawyer', shown: 12040, rank: 'page 2', page: 2 },
+    ],
+  },
+
+  reputation: [
+    ['michael campopiano', '#1', '25 visits'],
+    ['law offices of michael f. campopiano', '#1', 'branded'],
+    ['campopiano law offices', '#2', 'branded'],
+    ['hit and run rhode island', '#3', 'non-branded win'],
   ],
-  deltas: [
-    ['Clicks', '+31.9%'],
-    ['Impressions', '+16.3%'],
-    ['Click-through rate', '+0.75 pts'],
-    ['Average position', '5.48 → 5.18'],
+
+  plan: [
+    ['Push page-2 pages to page 1', 'Car-accident, motorcycle and rideshare pages already getting seen.'],
+    ['Keep publishing guides', 'The PIP and tort-threshold posts prove educational content earns visits.'],
+    ['Strengthen city pages', 'Providence, Warwick and Pawtucket: high-intent, local searches.'],
+    ['Protect the #1 rankings', 'Keep the firm name and hit-and-run searches locked at the top.'],
   ],
-  context: '9,711 clicks and 162,277 impressions across the full five-week export. 89% of clicks came from mobile.',
-  source: 'Google Search Console performance export, 20 Jul 2026',
+
+  source: 'Google Search Console · reported to the client, July 2026',
 }

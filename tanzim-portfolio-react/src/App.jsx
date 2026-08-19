@@ -13,15 +13,15 @@ import {
   FRAMEWORKS,
   CREATIVE,
   CLIENTS,
-  AUDIT,
-  TREND,
+  MFC,
 } from './data'
 import {
   CaseChart,
   Efficiency,
-  KeywordSpend,
-  SignalGap,
-  PairedBars,
+  TrendGrid,
+  RankList,
+  PageBars,
+  Opportunity,
   REDUCED_MOTION,
   useInView,
 } from './charts'
@@ -122,6 +122,7 @@ const Italic = ({ children }) => (
     {children}
   </span>
 )
+
 
 function SectionHead({ eyebrow, index, children, lede, align = 'center' }) {
   const center = align === 'center'
@@ -808,261 +809,302 @@ function Results() {
 }
 
 /* ==========================================================================
-   DIAGNOSIS  —  audit findings (no outcome claimed) + a measured trend
+   MFC LAW — organic search showcase, from the July 2026 client report
    ========================================================================== */
 
-function Diagnosis() {
+function KpiCard({ k, i }) {
+  const [ref, inView] = useInView(0.4)
+  return (
+    <Reveal delay={i * 0.06} className="surface surface-glow p-5 sm:p-6 overflow-hidden">
+      <div ref={ref} className="relative">
+        <span
+          className="absolute right-0 -top-1 w-10 h-10 rounded-full opacity-25"
+          style={{ background: `var(--${k.tone})`, filter: 'blur(18px)' }}
+          aria-hidden
+        />
+        <div
+          className="font-mono text-[9.5px] uppercase tracking-[0.14em]"
+          style={{ color: 'var(--faint)' }}
+        >
+          {k.label}
+        </div>
+        <div className="stat-num text-[clamp(30px,4vw,44px)] mt-2">
+          {k.display || <Counter target={k.value} />}
+        </div>
+        <div className="flex items-baseline gap-2 mt-3">
+          <span
+            className="font-mono text-[13px] font-medium px-2 py-0.5 rounded"
+            style={{
+              color: `var(--${k.tone})`,
+              background: `color-mix(in srgb, var(--${k.tone}) 14%, transparent)`,
+            }}
+          >
+            {k.delta}
+          </span>
+          <span className="font-mono text-[10.5px]" style={{ color: 'var(--faint)' }}>
+            from {k.from}
+          </span>
+        </div>
+        {k.note && (
+          <div className="font-mono text-[9.5px] mt-2" style={{ color: 'var(--faint)' }}>
+            {k.note}
+          </div>
+        )}
+        <div className="mt-4 h-[3px] rounded-full" style={{ background: 'var(--chart-track)' }}>
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: inView ? '100%' : '0%',
+              background: `linear-gradient(90deg, var(--${k.tone}), transparent)`,
+              transition: REDUCED_MOTION ? 'none' : `width 1.3s cubic-bezier(0.22,1,0.36,1) ${i * 0.09}s`,
+            }}
+          />
+        </div>
+      </div>
+    </Reveal>
+  )
+}
+
+function MfcShowcase() {
   const tilt = useTilt(2)
-  const t = TREND
-  const w1 = t.windows[0]
-  const w2 = t.windows[1]
+  const sc = MFC.showcase
 
   return (
-    <section id="diagnosis" className="py-16 md:py-28" aria-label="Account diagnosis">
-      <div className="shell">
+    <section
+      id="mfc"
+      className="py-16 md:py-28 border-y relative overflow-hidden"
+      style={{ background: 'var(--bg-soft)', borderColor: 'var(--line)' }}
+      aria-label="MFC Law organic search showcase"
+    >
+      <div
+        className="aurora animate-float-a w-[520px] h-[400px] -top-[120px] right-[4%] pointer-events-none"
+        style={{ background: 'var(--glow)' }}
+        aria-hidden
+      />
+      <div className="shell relative">
         <SectionHead
-          eyebrow="Reading The Account"
+          eyebrow={MFC.eyebrow}
           index="03"
-          lede="Before anyone talks about budget, someone has to read the account. Two live examples: what a proper audit surfaces, and what steady management looks like on a chart."
+          lede={MFC.lede}
         >
-          What an audit actually <Italic>finds</Italic>
+          {MFC.title.split(' on Google')[0]} on <Italic>Google</Italic>
         </SectionHead>
 
-        {/* ---------- MFC: the diagnosis ---------- */}
-        <Reveal as="article" className="surface surface-glow p-5 sm:p-7 md:p-9 mb-3.5" {...tilt}>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-3 mb-3">
-            <span className="tag-outline self-start">{AUDIT.client}</span>
-            <span
-              className="font-mono text-[10px] uppercase tracking-[0.12em] sm:pt-2 sm:text-right"
-              style={{ color: 'var(--faint)' }}
-            >
-              {AUDIT.channel}
-            </span>
-          </div>
+        <Reveal className="flex flex-wrap items-center justify-center gap-2.5 mb-10 -mt-6">
+          <span className="chip">{MFC.channel}</span>
+          <span className="chip">{MFC.period}</span>
+        </Reveal>
 
-          <h3 className="font-display font-bold text-[clamp(22px,3vw,33px)] tracking-[-0.025em] leading-tight mb-3">
-            {AUDIT.title}
+        {/* KPI row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 mb-3.5">
+          {MFC.kpis.map((k, i) => (
+            <KpiCard key={k.label} k={k} i={i} />
+          ))}
+        </div>
+
+        {/* Trend */}
+        <Reveal className="surface p-5 sm:p-7 md:p-9 mb-3.5">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 lg:gap-12 items-start">
+            <div>
+              <h3 className="font-display font-bold text-[clamp(22px,2.8vw,30px)] tracking-[-0.02em] leading-tight mb-4">
+                Three months, one direction
+              </h3>
+              <p className="text-[15px] leading-relaxed" style={{ color: 'var(--dim)' }}>
+                {MFC.trend.takeaway}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-6">
+                {MFC.reputation.slice(0, 2).map(([term, rank]) => (
+                  <span key={term} className="chip">
+                    <b>{rank}</b> &ldquo;{term}&rdquo;
+                  </span>
+                ))}
+              </div>
+            </div>
+            <TrendGrid config={MFC.trend} />
+          </div>
+        </Reveal>
+
+        {/* Showcase: hit-and-run */}
+        <Reveal as="article" className="surface surface-glow p-5 sm:p-7 md:p-9 mb-3.5" {...tilt}>
+          <span className="tag-outline mb-4">{sc.tag}</span>
+          <h3 className="font-display font-bold text-[clamp(22px,3vw,33px)] tracking-[-0.025em] leading-tight mb-3 max-w-[22ch]">
+            {sc.title}
           </h3>
-          <p className="text-[15px] leading-relaxed max-w-[760px] mb-7" style={{ color: 'var(--dim)' }}>
-            {AUDIT.body}
+          <p className="text-[15px] leading-relaxed max-w-[720px] mb-7" style={{ color: 'var(--dim)' }}>
+            {sc.body}
           </p>
 
-          {/* headline three-up */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-            {AUDIT.headline.map((h) => (
+            {sc.stats.map(([v, l]) => (
               <div
-                key={h.label}
+                key={l}
                 className="rounded-2xl px-5 py-5"
-                style={{
-                  background: h.bad
-                    ? 'color-mix(in srgb, var(--ember) 9%, transparent)'
-                    : 'var(--bg-soft)',
-                  border: h.bad
-                    ? '1px solid color-mix(in srgb, var(--ember) 40%, transparent)'
-                    : '1px solid var(--line)',
-                }}
+                style={{ background: 'var(--bg-soft)', border: '1px solid var(--line)' }}
               >
-                <div
-                  className="stat-num text-[clamp(28px,3.4vw,38px)]"
-                  style={{ color: h.bad ? 'var(--ember)' : 'var(--text)' }}
-                >
-                  {h.value}
+                <div className="stat-num text-[30px]" style={{ color: 'var(--accent-ink)' }}>
+                  {v}
                 </div>
-                <div
-                  className="font-mono text-[9.5px] uppercase tracking-[0.14em] mt-2"
-                  style={{ color: h.bad ? 'var(--accent-ink)' : 'var(--faint)' }}
-                >
-                  {h.label}
+                <div className="text-[13px] mt-2 leading-snug" style={{ color: 'var(--dim)' }}>
+                  {l}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+          {/* real SERP screenshot */}
+          <figure className="m-0 mb-7">
+            <figcaption
+              className="font-mono text-[10px] uppercase tracking-[0.16em] mb-3"
+              style={{ color: 'var(--faint)' }}
+            >
+              The result Google returned
+            </figcaption>
+            <img
+              src={sc.image}
+              alt={sc.imageAlt}
+              loading="lazy"
+              width="1400"
+              height="290"
+              className="w-full h-auto rounded-2xl"
+              style={{ border: '1px solid var(--line-strong)' }}
+            />
+          </figure>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
+            <RankList rows={sc.ranking} caption="Law firms, in the order Google listed them" />
             <div>
               <div
-                className="font-mono text-[10px] uppercase tracking-[0.16em] mb-4"
+                className="font-mono text-[10px] uppercase tracking-[0.16em] mb-3"
                 style={{ color: 'var(--faint)' }}
               >
-                {AUDIT.period}
+                The snippet earning the clicks
               </div>
-              <dl className="m-0 mb-8">
-                {AUDIT.metrics.map(([k, v], i) => (
-                  <div
-                    key={k}
-                    className={`flex justify-between items-baseline gap-4 py-2.5 ${i ? 'border-t' : ''}`}
-                    style={{ borderColor: 'var(--line)' }}
-                  >
-                    <dt className="text-[13.5px]" style={{ color: 'var(--dim)' }}>
-                      {k}
-                    </dt>
-                    <dd className="m-0 font-mono text-[13.5px] tabular-nums whitespace-nowrap">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              <SignalGap config={AUDIT.signal} />
+              <blockquote
+                className="m-0 rounded-2xl px-6 py-6 text-[16px] leading-relaxed italic"
+                style={{
+                  background: 'color-mix(in srgb, var(--ember) 8%, transparent)',
+                  borderLeft: '3px solid var(--ember)',
+                  color: 'var(--text)',
+                }}
+              >
+                &ldquo;{sc.snippet}&rdquo;
+              </blockquote>
+              <p className="text-[13.5px] leading-relaxed mt-4" style={{ color: 'var(--dim)' }}>
+                {sc.snippetNote}
+              </p>
             </div>
-
-            <div>
-              <KeywordSpend config={AUDIT.spend} />
-            </div>
-          </div>
-
-          <div className="mt-9 pt-8 border-t" style={{ borderColor: 'var(--line)' }}>
-            <div
-              className="font-mono text-[10px] uppercase tracking-[0.16em] mb-5"
-              style={{ color: 'var(--faint)' }}
-            >
-              What the audit produced
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
-              {AUDIT.findings.map(([head, rest], i) => (
-                <div
-                  key={head}
-                  className="relative py-3.5 pl-6 border-t text-[14.5px] leading-relaxed"
-                  style={{ color: 'var(--dim)', borderColor: 'var(--line)' }}
-                >
-                  <svg
-                    className="absolute left-0 top-[17px] w-3 h-3"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="var(--ember)"
-                    strokeWidth="2.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                  <strong className="font-semibold" style={{ color: 'var(--text)' }}>
-                    {head}.
-                  </strong>{' '}
-                  {rest}
-                </div>
-              ))}
-            </div>
-            <p
-              className="font-mono text-[10.5px] uppercase tracking-[0.1em] mt-6"
-              style={{ color: 'var(--faint)' }}
-            >
-              {AUDIT.status}
-            </p>
-          </div>
-        </Reveal>
-
-        {/* ---------- Flame: growth trend ---------- */}
-        <Reveal as="article" delay={0.06} className="surface surface-glow p-5 sm:p-7 md:p-9" {...tilt}>
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-3 mb-3">
-            <span className="tag-outline self-start">{t.client}</span>
-            <span
-              className="font-mono text-[10px] uppercase tracking-[0.12em] sm:pt-2 sm:text-right"
-              style={{ color: 'var(--faint)' }}
-            >
-              {t.channel}
-            </span>
-          </div>
-
-          <span
-            className="inline-flex items-center rounded-full px-3 py-1.5 mb-4 font-mono text-[10px] uppercase tracking-[0.14em]"
-            style={{
-              color: 'var(--cyan)',
-              border: '1px solid color-mix(in srgb, var(--cyan) 35%, transparent)',
-            }}
-          >
-            {t.label}
-          </span>
-
-          <h3 className="font-display font-bold text-[clamp(22px,3vw,33px)] tracking-[-0.025em] leading-tight mb-3">
-            {t.title}
-          </h3>
-          <p className="text-[15px] leading-relaxed max-w-[760px] mb-7" style={{ color: 'var(--dim)' }}>
-            {t.body}
-          </p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-8 lg:gap-10 items-start">
-            <div>
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                {t.windows.map((w, i) => (
-                  <div
-                    key={w.name}
-                    className="rounded-2xl px-4 py-4"
-                    style={{
-                      background: i ? 'color-mix(in srgb, var(--ember) 8%, transparent)' : 'var(--bg-soft)',
-                      border: i
-                        ? '1px solid color-mix(in srgb, var(--ember) 35%, transparent)'
-                        : '1px solid var(--line)',
-                    }}
-                  >
-                    <div
-                      className="font-mono text-[9.5px] uppercase tracking-[0.14em]"
-                      style={{ color: i ? 'var(--accent-ink)' : 'var(--faint)' }}
-                    >
-                      {w.name}
-                    </div>
-                    <div className="font-mono text-[10.5px] mt-1" style={{ color: 'var(--faint)' }}>
-                      {w.period}
-                    </div>
-                    <div
-                      className="stat-num text-[26px] mt-3"
-                      style={{ color: i ? 'var(--ember)' : 'var(--text)' }}
-                    >
-                      {w.clicks.toLocaleString('en-US')}
-                    </div>
-                    <div className="font-mono text-[9.5px] uppercase tracking-[0.12em] mt-1" style={{ color: 'var(--faint)' }}>
-                      clicks
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <dl className="m-0">
-                {t.deltas.map(([k, v], i) => (
-                  <div
-                    key={k}
-                    className={`flex justify-between items-baseline gap-4 py-2.5 ${i ? 'border-t' : ''}`}
-                    style={{ borderColor: 'var(--line)' }}
-                  >
-                    <dt className="text-[13.5px]" style={{ color: 'var(--dim)' }}>
-                      {k}
-                    </dt>
-                    <dd
-                      className="m-0 font-mono text-[13.5px] tabular-nums whitespace-nowrap"
-                      style={{ color: 'var(--accent-ink)' }}
-                    >
-                      {v}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-
-            <PairedBars
-              caption="Two matched 17-day windows"
-              note="trend, no cause claimed"
-              groups={[
-                { label: 'Clicks', a: w1.clicks, b: w2.clicks, aName: w1.name, bName: w2.name },
-                { label: 'Impressions', a: w1.impressions, b: w2.impressions, aName: w1.name, bName: w2.name },
-                {
-                  label: 'Click-through rate',
-                  a: w1.ctr,
-                  b: w2.ctr,
-                  aName: w1.name,
-                  bName: w2.name,
-                  fmt: (v) => `${v}%`,
-                },
-              ]}
-            />
           </div>
 
           <p
-            className="font-mono text-[10.5px] uppercase tracking-[0.09em] mt-8 pt-6 border-t leading-loose"
+            className="font-mono text-[10px] uppercase tracking-[0.08em] mt-8 pt-6 border-t leading-loose"
             style={{ color: 'var(--faint)', borderColor: 'var(--line)' }}
           >
-            {t.context}
-            <br />
-            Source: {t.source}
+            {sc.disclaimer}
           </p>
         </Reveal>
+
+        {/* Pages + reach */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 mb-3.5">
+          <Reveal as="article" className="surface surface-glow p-5 sm:p-7" {...tilt}>
+            <PageBars config={MFC.pages} />
+          </Reveal>
+
+          <Reveal as="article" delay={0.06} className="surface surface-glow p-5 sm:p-7" {...tilt}>
+            <div className="flex items-baseline gap-4 mb-4">
+              <span className="stat-num text-[clamp(38px,5vw,54px)]" style={{ color: 'var(--ember)' }}>
+                {MFC.reach.headline}
+              </span>
+              <span className="text-[13.5px] leading-snug" style={{ color: 'var(--dim)' }}>
+                {MFC.reach.headlineLabel}
+              </span>
+            </div>
+            <p className="text-[14px] leading-relaxed mb-6" style={{ color: 'var(--dim)' }}>
+              {MFC.reach.body}
+            </p>
+            <div className="flex flex-col gap-5">
+              {MFC.reach.groups.map((g) => (
+                <div key={g.name}>
+                  <div
+                    className="font-mono text-[9.5px] uppercase tracking-[0.16em] mb-2"
+                    style={{ color: 'var(--accent-ink)' }}
+                  >
+                    {g.name}
+                  </div>
+                  <ul className="list-none m-0 p-0">
+                    {g.terms.map(([term, pos, shown]) => (
+                      <li
+                        key={term}
+                        className="flex items-baseline justify-between gap-3 py-1.5 border-t"
+                        style={{ borderColor: 'var(--line)' }}
+                      >
+                        <span className="text-[13px]" style={{ color: 'var(--dim)' }}>
+                          {term}
+                        </span>
+                        <span
+                          className="font-mono text-[11px] tabular-nums shrink-0"
+                          style={{ color: pos <= 3 ? 'var(--ember)' : 'var(--faint)' }}
+                        >
+                          #{pos} · {shown.toLocaleString('en-US')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="font-mono text-[10px] mt-5 leading-relaxed" style={{ color: 'var(--faint)' }}>
+              {MFC.reach.note}
+            </p>
+          </Reveal>
+        </div>
+
+        {/* Opportunity + plan */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+          <Reveal as="article" className="surface surface-glow p-5 sm:p-7" {...tilt}>
+            <h3 className="font-display font-bold text-[23px] tracking-[-0.02em] mb-3">
+              Where the next wins are
+            </h3>
+            <p className="text-[14px] leading-relaxed mb-6" style={{ color: 'var(--dim)' }}>
+              {MFC.opportunity.body}
+            </p>
+            <Opportunity config={MFC.opportunity} />
+          </Reveal>
+
+          <Reveal as="article" delay={0.06} className="surface surface-glow p-5 sm:p-7" {...tilt}>
+            <h3 className="font-display font-bold text-[23px] tracking-[-0.02em] mb-5">
+              What we do next
+            </h3>
+            <ol className="list-none m-0 p-0 counter-reset">
+              {MFC.plan.map(([head, rest], i) => (
+                <li
+                  key={head}
+                  className="relative py-4 pl-11 border-t"
+                  style={{ borderColor: 'var(--line)' }}
+                >
+                  <span
+                    className="absolute left-0 top-4 w-7 h-7 rounded-full inline-flex items-center justify-center font-mono text-[11px]"
+                    style={{
+                      color: 'var(--accent-ink)',
+                      border: '1px solid color-mix(in srgb, var(--ember) 40%, transparent)',
+                    }}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <strong className="block font-semibold text-[15px] mb-1">{head}</strong>
+                  <span className="text-[13.5px] leading-relaxed" style={{ color: 'var(--dim)' }}>
+                    {rest}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p
+              className="font-mono text-[10px] uppercase tracking-[0.1em] mt-6 pt-5 border-t"
+              style={{ color: 'var(--faint)', borderColor: 'var(--line)' }}
+            >
+              {MFC.source}
+            </p>
+          </Reveal>
+        </div>
       </div>
     </section>
   )
@@ -1682,7 +1724,7 @@ export default function App() {
         <Marquee />
         <Services />
         <Results />
-        <Diagnosis />
+        <MfcShowcase />
         <Process />
         <About />
         <Playbooks />

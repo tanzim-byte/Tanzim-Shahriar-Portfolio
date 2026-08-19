@@ -7,34 +7,34 @@
    ========================================================================== */
 
 :root[data-theme='dark'] {
-  --bg: #0c0b0a;
-  --bg-soft: #131110;
-  --card: #1a1714;
-  --card-2: #201b18;
-  --line: rgba(255, 240, 230, 0.08);
-  --line-strong: rgba(255, 240, 230, 0.17);
-  --text: #f7f1ea;
-  --dim: #aba29b;
-  --faint: #8a8079;
+  --bg: #17111a;
+  --bg-soft: #1e1723;
+  --card: #251d2b;
+  --card-2: #2d2434;
+  --line: rgba(240, 230, 255, 0.12);
+  --line-strong: rgba(240, 230, 255, 0.24);
+  --text: #f8f2f7;
+  --dim: #c9bfcd;
+  --faint: #a195a8;
 
   --ember: #ff6a3d;
-  --ember-ink: #ff8a63;
+  --ember-ink: #ffa383;
   --brick: #b5665f;
-  --gold: #f5b942;
-  --cyan: #37e0d8;
-  --violet: #9b7bff;
-  --red-ink: #e5544b;
+  --gold: #f7c25a;
+  --cyan: #5ceee6;
+  --violet: #c2a9ff;
+  --red-ink: #f7726a;
 
   --accent-ink: var(--ember-ink);
   --glow: rgba(255, 106, 61, 0.22);
-  --glow-2: rgba(155, 123, 255, 0.16);
+  --glow-2: rgba(178, 140, 255, 0.2);
   --glow-3: rgba(55, 224, 216, 0.12);
-  --shadow: rgba(0, 0, 0, 0.85);
-  --nav-bg: rgba(12, 11, 10, 0.72);
-  --overlay: rgba(12, 11, 10, 0.88);
-  --grid-line: rgba(255, 240, 230, 0.045);
-  --noise-opacity: 0.035;
-  --chart-track: rgba(255, 240, 230, 0.07);
+  --shadow: rgba(8, 3, 12, 0.88);
+  --nav-bg: rgba(23, 17, 26, 0.78);
+  --overlay: rgba(23, 17, 26, 0.9);
+  --grid-line: rgba(240, 230, 255, 0.05);
+  --noise-opacity: 0.022;
+  --chart-track: rgba(240, 230, 255, 0.11);
   --on-ember: #1a0b05;
 }
 
