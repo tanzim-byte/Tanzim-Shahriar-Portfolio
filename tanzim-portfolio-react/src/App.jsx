@@ -13,8 +13,18 @@ import {
   FRAMEWORKS,
   CREATIVE,
   CLIENTS,
+  AUDIT,
+  TREND,
 } from './data'
-import { CaseChart, Efficiency, REDUCED_MOTION, useInView } from './charts'
+import {
+  CaseChart,
+  Efficiency,
+  KeywordSpend,
+  SignalGap,
+  PairedBars,
+  REDUCED_MOTION,
+  useInView,
+} from './charts'
 
 /* ==========================================================================
    PRIMITIVES
@@ -177,7 +187,7 @@ function Nav({ theme, toggleTheme }) {
       <div className="shell py-3 flex items-center justify-between gap-4">
         <a
           href="#top"
-          className="flex items-center gap-2.5 font-display font-bold text-[20px] tracking-tight no-underline shrink-0"
+          className="tap-safe gap-2.5 font-display font-bold text-[20px] tracking-tight no-underline shrink-0"
           style={{ color: 'var(--text)' }}
         >
           <span className="relative w-7 h-7 inline-flex items-center justify-center">
@@ -360,7 +370,7 @@ function Hero() {
           Digital Marketing Lead · Social Engagement Group
         </div>
 
-        <h1 className="font-display font-bold mx-auto mb-3 max-w-[13em] leading-[0.98] tracking-[-0.045em] text-[clamp(46px,8vw,104px)]">
+        <h1 className="font-display font-bold mx-auto mb-3 max-w-[13em] leading-[1.0] sm:leading-[0.98] tracking-[-0.04em] sm:tracking-[-0.045em] text-[clamp(38px,8.4vw,104px)]">
           I&apos;m{' '}
           <span className="accent-name">
             <span className="gradient-text">Tanzim Shahriar</span>
@@ -495,7 +505,8 @@ function Marquee() {
   const a = [...MARQUEE_A, ...MARQUEE_A]
   const b = [...MARQUEE_B, ...MARQUEE_B]
   return (
-    <div className="marquee-band relative overflow-hidden -mx-6 mt-6 mb-2 select-none" aria-hidden>
+    <div className="relative overflow-hidden mt-6 mb-2 select-none" aria-hidden>
+      <div className="marquee-band -mx-6">
       <div
         className="-rotate-[1.4deg] overflow-hidden py-3.5"
         style={{ background: 'linear-gradient(90deg, var(--ember), var(--gold) 55%, var(--ember))' }}
@@ -530,6 +541,7 @@ function Marquee() {
           ))}
         </div>
       </div>
+      </div>
     </div>
   )
 }
@@ -541,7 +553,7 @@ function Marquee() {
 function Services() {
   const [open, setOpen] = useState(0)
   return (
-    <section id="services" className="py-24 md:py-28" aria-label="Services">
+    <section id="services" className="py-16 md:py-28" aria-label="Services">
       <div className="shell">
         <SectionHead
           eyebrow="My Services"
@@ -643,7 +655,7 @@ function KpiTile({ k, i }) {
   return (
     <Reveal
       delay={i * 0.06}
-      className="surface surface-glow p-6 md:p-7 overflow-hidden"
+      className="surface surface-glow p-5 sm:p-6 md:p-7 overflow-hidden"
       style={{ background: 'var(--card)' }}
     >
       <div ref={ref} className="relative">
@@ -682,7 +694,7 @@ function Results() {
   return (
     <section
       id="results"
-      className="py-24 md:py-28 border-y relative"
+      className="py-16 md:py-28 border-y relative"
       style={{ background: 'var(--bg-soft)', borderColor: 'var(--line)' }}
       aria-label="Results and case studies"
     >
@@ -702,7 +714,7 @@ function Results() {
           ))}
         </div>
 
-        <Reveal className="surface p-6 md:p-9 mb-8" style={{ background: 'var(--card)' }}>
+        <Reveal className="surface p-5 sm:p-6 md:p-9 mb-8" style={{ background: 'var(--card)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.35fr] gap-8 lg:gap-12 items-start">
             <div>
               <span className="tag-outline mb-4">Efficiency</span>
@@ -726,14 +738,16 @@ function Results() {
               as="article"
               key={c.client}
               delay={(i % 2) * 0.07}
-              className="surface surface-glow p-6 md:p-8 flex flex-col"
+              className="surface surface-glow p-5 sm:p-6 md:p-8 flex flex-col"
               style={{ background: 'var(--card)' }}
               {...tilt}
             >
-              <div className="flex justify-between items-start gap-3 mb-3">
-                <span className="tag-outline">{c.client}</span>
+              {/* Stacked on phones — the client tag and channel label both wrap
+                  and collide when forced side by side at 390px. */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-3 mb-3">
+                <span className="tag-outline self-start">{c.client}</span>
                 <span
-                  className="font-mono text-[10px] uppercase tracking-[0.12em] pt-2 text-right"
+                  className="font-mono text-[10px] uppercase tracking-[0.12em] sm:pt-2 sm:text-right"
                   style={{ color: 'var(--faint)' }}
                 >
                   {c.channel}
@@ -794,12 +808,273 @@ function Results() {
 }
 
 /* ==========================================================================
+   DIAGNOSIS  —  audit findings (no outcome claimed) + a measured trend
+   ========================================================================== */
+
+function Diagnosis() {
+  const tilt = useTilt(2)
+  const t = TREND
+  const w1 = t.windows[0]
+  const w2 = t.windows[1]
+
+  return (
+    <section id="diagnosis" className="py-16 md:py-28" aria-label="Account diagnosis">
+      <div className="shell">
+        <SectionHead
+          eyebrow="Reading The Account"
+          index="03"
+          lede="Before anyone talks about budget, someone has to read the account. Two live examples: what a proper audit surfaces, and what steady management looks like on a chart."
+        >
+          What an audit actually <Italic>finds</Italic>
+        </SectionHead>
+
+        {/* ---------- MFC: the diagnosis ---------- */}
+        <Reveal as="article" className="surface surface-glow p-5 sm:p-7 md:p-9 mb-3.5" {...tilt}>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-3 mb-3">
+            <span className="tag-outline self-start">{AUDIT.client}</span>
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.12em] sm:pt-2 sm:text-right"
+              style={{ color: 'var(--faint)' }}
+            >
+              {AUDIT.channel}
+            </span>
+          </div>
+
+          <h3 className="font-display font-bold text-[clamp(22px,3vw,33px)] tracking-[-0.025em] leading-tight mb-3">
+            {AUDIT.title}
+          </h3>
+          <p className="text-[15px] leading-relaxed max-w-[760px] mb-7" style={{ color: 'var(--dim)' }}>
+            {AUDIT.body}
+          </p>
+
+          {/* headline three-up */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            {AUDIT.headline.map((h) => (
+              <div
+                key={h.label}
+                className="rounded-2xl px-5 py-5"
+                style={{
+                  background: h.bad
+                    ? 'color-mix(in srgb, var(--ember) 9%, transparent)'
+                    : 'var(--bg-soft)',
+                  border: h.bad
+                    ? '1px solid color-mix(in srgb, var(--ember) 40%, transparent)'
+                    : '1px solid var(--line)',
+                }}
+              >
+                <div
+                  className="stat-num text-[clamp(28px,3.4vw,38px)]"
+                  style={{ color: h.bad ? 'var(--ember)' : 'var(--text)' }}
+                >
+                  {h.value}
+                </div>
+                <div
+                  className="font-mono text-[9.5px] uppercase tracking-[0.14em] mt-2"
+                  style={{ color: h.bad ? 'var(--accent-ink)' : 'var(--faint)' }}
+                >
+                  {h.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+            <div>
+              <div
+                className="font-mono text-[10px] uppercase tracking-[0.16em] mb-4"
+                style={{ color: 'var(--faint)' }}
+              >
+                {AUDIT.period}
+              </div>
+              <dl className="m-0 mb-8">
+                {AUDIT.metrics.map(([k, v], i) => (
+                  <div
+                    key={k}
+                    className={`flex justify-between items-baseline gap-4 py-2.5 ${i ? 'border-t' : ''}`}
+                    style={{ borderColor: 'var(--line)' }}
+                  >
+                    <dt className="text-[13.5px]" style={{ color: 'var(--dim)' }}>
+                      {k}
+                    </dt>
+                    <dd className="m-0 font-mono text-[13.5px] tabular-nums whitespace-nowrap">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <SignalGap config={AUDIT.signal} />
+            </div>
+
+            <div>
+              <KeywordSpend config={AUDIT.spend} />
+            </div>
+          </div>
+
+          <div className="mt-9 pt-8 border-t" style={{ borderColor: 'var(--line)' }}>
+            <div
+              className="font-mono text-[10px] uppercase tracking-[0.16em] mb-5"
+              style={{ color: 'var(--faint)' }}
+            >
+              What the audit produced
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
+              {AUDIT.findings.map(([head, rest], i) => (
+                <div
+                  key={head}
+                  className="relative py-3.5 pl-6 border-t text-[14.5px] leading-relaxed"
+                  style={{ color: 'var(--dim)', borderColor: 'var(--line)' }}
+                >
+                  <svg
+                    className="absolute left-0 top-[17px] w-3 h-3"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--ember)"
+                    strokeWidth="2.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                  <strong className="font-semibold" style={{ color: 'var(--text)' }}>
+                    {head}.
+                  </strong>{' '}
+                  {rest}
+                </div>
+              ))}
+            </div>
+            <p
+              className="font-mono text-[10.5px] uppercase tracking-[0.1em] mt-6"
+              style={{ color: 'var(--faint)' }}
+            >
+              {AUDIT.status}
+            </p>
+          </div>
+        </Reveal>
+
+        {/* ---------- Flame: growth trend ---------- */}
+        <Reveal as="article" delay={0.06} className="surface surface-glow p-5 sm:p-7 md:p-9" {...tilt}>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-3 mb-3">
+            <span className="tag-outline self-start">{t.client}</span>
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.12em] sm:pt-2 sm:text-right"
+              style={{ color: 'var(--faint)' }}
+            >
+              {t.channel}
+            </span>
+          </div>
+
+          <span
+            className="inline-flex items-center rounded-full px-3 py-1.5 mb-4 font-mono text-[10px] uppercase tracking-[0.14em]"
+            style={{
+              color: 'var(--cyan)',
+              border: '1px solid color-mix(in srgb, var(--cyan) 35%, transparent)',
+            }}
+          >
+            {t.label}
+          </span>
+
+          <h3 className="font-display font-bold text-[clamp(22px,3vw,33px)] tracking-[-0.025em] leading-tight mb-3">
+            {t.title}
+          </h3>
+          <p className="text-[15px] leading-relaxed max-w-[760px] mb-7" style={{ color: 'var(--dim)' }}>
+            {t.body}
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-8 lg:gap-10 items-start">
+            <div>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {t.windows.map((w, i) => (
+                  <div
+                    key={w.name}
+                    className="rounded-2xl px-4 py-4"
+                    style={{
+                      background: i ? 'color-mix(in srgb, var(--ember) 8%, transparent)' : 'var(--bg-soft)',
+                      border: i
+                        ? '1px solid color-mix(in srgb, var(--ember) 35%, transparent)'
+                        : '1px solid var(--line)',
+                    }}
+                  >
+                    <div
+                      className="font-mono text-[9.5px] uppercase tracking-[0.14em]"
+                      style={{ color: i ? 'var(--accent-ink)' : 'var(--faint)' }}
+                    >
+                      {w.name}
+                    </div>
+                    <div className="font-mono text-[10.5px] mt-1" style={{ color: 'var(--faint)' }}>
+                      {w.period}
+                    </div>
+                    <div
+                      className="stat-num text-[26px] mt-3"
+                      style={{ color: i ? 'var(--ember)' : 'var(--text)' }}
+                    >
+                      {w.clicks.toLocaleString('en-US')}
+                    </div>
+                    <div className="font-mono text-[9.5px] uppercase tracking-[0.12em] mt-1" style={{ color: 'var(--faint)' }}>
+                      clicks
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <dl className="m-0">
+                {t.deltas.map(([k, v], i) => (
+                  <div
+                    key={k}
+                    className={`flex justify-between items-baseline gap-4 py-2.5 ${i ? 'border-t' : ''}`}
+                    style={{ borderColor: 'var(--line)' }}
+                  >
+                    <dt className="text-[13.5px]" style={{ color: 'var(--dim)' }}>
+                      {k}
+                    </dt>
+                    <dd
+                      className="m-0 font-mono text-[13.5px] tabular-nums whitespace-nowrap"
+                      style={{ color: 'var(--accent-ink)' }}
+                    >
+                      {v}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <PairedBars
+              caption="Two matched 17-day windows"
+              note="trend, no cause claimed"
+              groups={[
+                { label: 'Clicks', a: w1.clicks, b: w2.clicks, aName: w1.name, bName: w2.name },
+                { label: 'Impressions', a: w1.impressions, b: w2.impressions, aName: w1.name, bName: w2.name },
+                {
+                  label: 'Click-through rate',
+                  a: w1.ctr,
+                  b: w2.ctr,
+                  aName: w1.name,
+                  bName: w2.name,
+                  fmt: (v) => `${v}%`,
+                },
+              ]}
+            />
+          </div>
+
+          <p
+            className="font-mono text-[10.5px] uppercase tracking-[0.09em] mt-8 pt-6 border-t leading-loose"
+            style={{ color: 'var(--faint)', borderColor: 'var(--line)' }}
+          >
+            {t.context}
+            <br />
+            Source: {t.source}
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+/* ==========================================================================
    PROCESS
    ========================================================================== */
 
 function Process() {
   return (
-    <section id="process" className="py-24 md:py-28 relative overflow-hidden" aria-label="How I work">
+    <section id="process" className="py-16 md:py-28 relative overflow-hidden" aria-label="How I work">
       <div
         className="aurora animate-float-b w-[420px] h-[340px] top-[10%] -right-[80px] pointer-events-none"
         style={{ background: 'var(--glow)' }}
@@ -808,7 +1083,7 @@ function Process() {
       <div className="shell relative">
         <SectionHead
           eyebrow="How I Work"
-          index="03"
+          index="04"
           align="left"
           lede="Most accounts do not have a budget problem. They have a measurement problem. This is the order I fix things in."
         >
@@ -817,7 +1092,7 @@ function Process() {
 
         <ol className="list-none m-0 p-0 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5">
           {PROCESS.map((p, i) => (
-            <Reveal as="li" key={p.step} delay={i * 0.08} className="surface surface-glow p-7 relative overflow-hidden">
+            <Reveal as="li" key={p.step} delay={i * 0.08} className="surface surface-glow p-5 sm:p-7 relative overflow-hidden">
               <span
                 className="absolute -top-5 -right-2 font-display font-bold text-[86px] leading-none pointer-events-none select-none"
                 style={{ color: 'var(--text)', opacity: 0.05 }}
@@ -869,7 +1144,7 @@ function Process() {
 
 function About() {
   return (
-    <section id="about" className="py-24 md:py-28" aria-label="About Tanzim">
+    <section id="about" className="py-16 md:py-28" aria-label="About Tanzim">
       <div className="shell">
         <div className="grid grid-cols-1 md:grid-cols-[0.85fr_1.35fr] gap-10 md:gap-16 items-center">
           <Reveal
@@ -955,11 +1230,11 @@ function About() {
 function Playbooks() {
   const tilt = useTilt(2)
   return (
-    <section id="playbooks" className="py-24 md:py-28" aria-label="Platform playbooks">
+    <section id="playbooks" className="py-16 md:py-28" aria-label="Platform playbooks">
       <div className="shell">
         <SectionHead
           eyebrow="Platform Playbooks"
-          index="04"
+          index="05"
           lede="Each network rewards different behavior. These are the methodologies I deploy, balancing organic engagement with optimized paid media buying."
         >
           Omni-channel growth, <Italic>one platform at a time</Italic>
@@ -971,7 +1246,7 @@ function Playbooks() {
               as="article"
               key={p.platform}
               delay={(i % 2) * 0.07}
-              className="surface surface-glow px-7 py-8"
+              className="surface surface-glow px-5 sm:px-7 py-7 sm:py-8"
               {...tilt}
             >
               <div className="flex items-center justify-between gap-3 mb-5">
@@ -1021,11 +1296,11 @@ function Playbooks() {
 
 function Frameworks() {
   return (
-    <section id="frameworks" className="py-24 md:py-28" aria-label="Paid search frameworks">
+    <section id="frameworks" className="py-16 md:py-28" aria-label="Paid search frameworks">
       <div className="shell">
         <SectionHead
           eyebrow="Search Frameworks"
-          index="05"
+          index="06"
           lede="High-intent paid search is where wasted spend hurts most and discipline pays best. Frameworks I've designed and deployed for targeted lead acquisition."
         >
           Built for buyers, priced with <Italic>discipline</Italic>
@@ -1039,8 +1314,48 @@ function Frameworks() {
           <span>Volumes and bids: estimated monthly ranges</span>
         </Reveal>
 
+        {/* Phones: stacked cards. A 820px-wide table in a scroll region is a
+            worse read than definition lists on a 390px screen. */}
+        <div className="md:hidden flex flex-col gap-3">
+          {FRAMEWORKS.map((f) => (
+            <Reveal key={f.vertical} className="surface p-5" style={{ background: 'var(--card)' }}>
+              <h3 className="font-display font-bold text-[19px] leading-snug mb-4">{f.vertical}</h3>
+              <dl className="m-0">
+                <dt className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--faint)' }}>
+                  Strategic keyword bids
+                </dt>
+                <dd className="m-0 mt-1.5 mb-4 font-mono text-[12.5px] leading-7" style={{ color: 'var(--dim)' }}>
+                  {f.keywords.map((k) => (
+                    <div key={k}>{k}</div>
+                  ))}
+                </dd>
+                <div className="flex gap-3 mb-4">
+                  <div className="flex-1">
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--faint)' }}>
+                      Monthly vol.
+                    </dt>
+                    <dd className="m-0 mt-1 font-mono text-[13.5px]">{f.volume}</dd>
+                  </div>
+                  <div className="flex-1">
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--faint)' }}>
+                      Bid range
+                    </dt>
+                    <dd className="m-0 mt-1 font-mono text-[13.5px]" style={{ color: 'var(--accent-ink)' }}>
+                      {f.bids}
+                    </dd>
+                  </div>
+                </div>
+                <dt className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--faint)' }}>
+                  Ad copy hook
+                </dt>
+                <dd className="m-0 mt-1.5 italic text-[15px] leading-relaxed">{f.hook}</dd>
+              </dl>
+            </Reveal>
+          ))}
+        </div>
+
         <Reveal
-          className="overflow-x-auto rounded-card border"
+          className="hidden md:block overflow-x-auto rounded-card border"
           style={{ borderColor: 'var(--line-strong)', background: 'var(--card)' }}
         >
           <table className="w-full min-w-[820px] border-collapse">
@@ -1098,11 +1413,11 @@ function Frameworks() {
 function Creative() {
   const tilt = useTilt(2)
   return (
-    <section id="work" className="py-24 md:py-28" aria-label="Creative work">
+    <section id="work" className="py-16 md:py-28" aria-label="Creative work">
       <div className="shell">
         <SectionHead
           eyebrow="Creative Work"
-          index="06"
+          index="07"
           lede="A few of the structural campaigns and concepts the SEG creative engine has executed under my direction."
         >
           Assets built for <Italic>retention</Italic>, not decoration
@@ -1114,7 +1429,7 @@ function Creative() {
               as="article"
               key={title}
               delay={(i % 2) * 0.07}
-              className="surface surface-glow p-8 relative overflow-hidden"
+              className="surface surface-glow p-5 sm:p-7 md:p-8 relative overflow-hidden"
               {...tilt}
             >
               <span
@@ -1150,12 +1465,12 @@ function Clients() {
   return (
     <section
       id="clients"
-      className="py-24 md:py-28 border-y"
+      className="py-16 md:py-28 border-y"
       style={{ background: 'var(--bg-soft)', borderColor: 'var(--line)' }}
       aria-label="Clients"
     >
       <div className="shell">
-        <SectionHead eyebrow="Client Roster" index="07" lede="Tap through to the brands themselves.">
+        <SectionHead eyebrow="Client Roster" index="08" lede="Tap through to the brands themselves.">
           Frameworks proven across <Italic>nine brands</Italic>
         </SectionHead>
 
@@ -1225,7 +1540,7 @@ function Clients() {
 
 function Contact() {
   return (
-    <section id="contact" className="pt-24 md:pt-28 pb-0" aria-label="Contact">
+    <section id="contact" className="pt-16 md:pt-28 pb-0" aria-label="Contact">
       <div className="shell">
         <Reveal
           className="relative overflow-hidden rounded-[32px] text-center px-6 md:px-16 py-14 md:py-24"
@@ -1256,7 +1571,7 @@ function Contact() {
           <div className="flex justify-center gap-3 flex-wrap">
             <a
               href="mailto:tanzim@socialengagementgroup.com"
-              className="pill"
+              className="pill w-full sm:w-auto !px-4 sm:!px-6 text-[13.5px] sm:text-[14.5px]"
               style={{ background: '#14100e', color: '#f7f1ea' }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden>
@@ -1295,7 +1610,7 @@ function Contact() {
             href="https://www.socialengagementgroup.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 no-underline transition-colors hover:opacity-80"
+            className="tap-safe gap-2.5 no-underline transition-colors hover:opacity-80"
             style={{ color: 'inherit' }}
           >
             <svg viewBox="0 0 44 50" className="w-[22px] h-6" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
@@ -1367,6 +1682,7 @@ export default function App() {
         <Marquee />
         <Services />
         <Results />
+        <Diagnosis />
         <Process />
         <About />
         <Playbooks />

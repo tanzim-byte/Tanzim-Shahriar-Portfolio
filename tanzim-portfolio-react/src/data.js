@@ -5,6 +5,7 @@
 export const NAV = [
   ['#services', 'Services'],
   ['#results', 'Results'],
+  ['#diagnosis', 'Diagnosis'],
   ['#process', 'Process'],
   ['#about', 'About'],
   ['#playbooks', 'Playbooks'],
@@ -305,3 +306,81 @@ export const CLIENTS = [
   ['Ari Rastegar', 'Executive brand', 'https://www.rastegarproperty.com'],
   ['Sona Chandi', 'Retail', null],
 ]
+
+/* ==========================================================================
+   AUDIT + TREND
+   MFC: figures from the Google Ads audit, Jun 1-17 2026, and the May 2026
+   call-recording review. No post-fix outcome is claimed - the remediation
+   plan is built, not yet live in the account.
+   Flame: two consecutive measured windows from Search Console. Trend only,
+   no cause attributed.
+   ========================================================================== */
+
+export const AUDIT = {
+  client: 'The Law Offices of Michael F. Campopiano',
+  channel: 'Google Ads · Personal injury',
+  period: 'Audit period · Jun 1–17, 2026',
+  title: '$1,341 of spend, 20 phone calls, zero injury cases',
+  body: 'A personal-injury firm paying for criminal, housing, small-claims and competitor-brand searches. I reviewed every call recording against the ad account, found where the budget was leaking, and built the remediation plan.',
+  headline: [
+    { value: '$1,341', label: 'spent in 17 days' },
+    { value: '20', label: 'phone calls' },
+    { value: '0', label: 'qualified injury cases', bad: true },
+  ],
+  metrics: [
+    ['Clicks', '75'],
+    ['Avg. cost per click', '$17.88'],
+    ['Cost per phone call', '$67.06'],
+    ['Calls reviewed / qualified', '19 / 0'],
+    ['Impression share', '16.9%'],
+    ['Morgan & Morgan impression share', '35.1%'],
+    ['Top-of-page rate', '39.6%'],
+  ],
+  /* Google reported 12 conversions; none were a case the firm took. */
+  signal: {
+    caption: 'What the account was optimising toward',
+    reported: 12,
+    real: 0,
+    note: 'Google counted 12 conversions across the period. None was an accident case the firm took, so bidding was being trained on junk.',
+  },
+  spend: {
+    caption: 'Where the identified spend went',
+    note: '$890 of $1,341 traced to six keywords',
+    rows: [
+      { label: 'accident injury law firm', value: 261.4, calls: 5, verdict: 'Pause' },
+      { label: 'personal injury lawyer RI', value: 235.22, calls: 3, verdict: 'To Exact' },
+      { label: 'motor vehicle lawyer', value: 157.77, calls: 3, verdict: 'To Exact' },
+      { label: 'accident case law', value: 128.03, calls: 2, verdict: 'Pause' },
+      { label: 'injury lawyer firm', value: 103.72, calls: 1, verdict: 'Pause' },
+      { label: 'accident lawyer', value: 3.98, calls: 0, verdict: 'Exact only' },
+    ],
+  },
+  findings: [
+    ['109 negative keywords', 'Criminal, DUI, family, housing, small-claims, insurance-billing and job searches — the exact traffic heard in the recordings.'],
+    ['61 competitor-name negatives', 'Around 60 of the visible search terms were people searching a rival attorney by name.'],
+    ['3 vague head terms to pause', 'Including the highest-spending keyword in the account at $261.'],
+    ['13 accident-intent keywords to add', 'Car, motorcycle, truck, rideshare, pedestrian, slip and fall, dog bite.'],
+    ['Conversion tracking rebuilt', 'Count a lead only on calls over 60–90 seconds, with qualified status imported.'],
+  ],
+  status: 'Findings delivered June 2026. Remediation plan built and ready to deploy.',
+}
+
+export const TREND = {
+  client: 'Flame Japanese Hibachi',
+  channel: 'Organic search · Restaurant',
+  label: 'Growth trend',
+  title: 'Organic clicks up 31.9% across two measured windows',
+  body: 'Two consecutive 17-day windows from Google Search Console on an account under active management. Clicks rose faster than impressions, so the gain came from click-through and position rather than search volume alone. Shown as a trend: no single change is credited for the lift.',
+  windows: [
+    { name: 'Window 1', period: 'Jun 14–30, 2026', clicks: 4081, impressions: 73137, ctr: 5.58, position: 5.48 },
+    { name: 'Window 2', period: 'Jul 2–18, 2026', clicks: 5383, impressions: 85080, ctr: 6.33, position: 5.18 },
+  ],
+  deltas: [
+    ['Clicks', '+31.9%'],
+    ['Impressions', '+16.3%'],
+    ['Click-through rate', '+0.75 pts'],
+    ['Average position', '5.48 → 5.18'],
+  ],
+  context: '9,711 clicks and 162,277 impressions across the full five-week export. 89% of clicks came from mobile.',
+  source: 'Google Search Console performance export, 20 Jul 2026',
+}

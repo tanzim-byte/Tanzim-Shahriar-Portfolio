@@ -63,42 +63,46 @@ const money = (v) => `$${v < 1 ? v.toFixed(2) : v.toFixed(2).replace(/\.00$/, ''
 
 function DataTable({ caption, head, rows }) {
   return (
-    <table className="sr-only-table">
-      <caption>{caption}</caption>
-      <thead>
-        <tr>
-          {head.map((h) => (
-            <th key={h} scope="col">
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r, i) => (
-          <tr key={i}>
-            {r.map((c, j) =>
-              j === 0 ? (
-                <th key={j} scope="row">
-                  {c}
-                </th>
-              ) : (
-                <td key={j}>{c}</td>
-              )
-            )}
+    <div className="sr-only-table">
+      <table>
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            {head.map((h) => (
+              <th key={h} scope="col">
+                {h}
+              </th>
+            ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i}>
+              {r.map((c, j) =>
+                j === 0 ? (
+                  <th key={j} scope="row">
+                    {c}
+                  </th>
+                ) : (
+                  <td key={j}>{c}</td>
+                )
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
 function Frame({ caption, note, children }) {
   return (
     <figure className="m-0">
-      <figcaption className="flex items-baseline justify-between gap-3 mb-4">
+      {/* Stacks on phones: side-by-side caption and note collide once the
+          caption wraps to several lines at narrow widths. */}
+      <figcaption className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-3 mb-4">
         <span
-          className="font-mono text-[10px] uppercase tracking-[0.16em]"
+          className="font-mono text-[10px] uppercase tracking-[0.16em] leading-snug"
           style={{ color: 'var(--faint)' }}
         >
           {caption}
@@ -106,7 +110,7 @@ function Frame({ caption, note, children }) {
         {note && (
           <span
             className="font-mono text-[9.5px] uppercase tracking-[0.14em] shrink-0"
-            style={{ color: 'var(--faint)' }}
+            style={{ color: 'var(--accent-ink)', opacity: 0.75 }}
           >
             {note}
           </span>
@@ -520,6 +524,204 @@ export function Efficiency({ config }) {
         caption="Cost per outcome across five campaigns"
         head={['Outcome', 'Cost', 'Campaign']}
         rows={config.rows.map((r) => [r.label, money(r.value), r.client])}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
+   6. KEYWORD SPEND — where the money went, and what it returned
+   ========================================================================== */
+
+export function KeywordSpend({ config }) {
+  const [ref, inView] = useInView(0.25)
+  const max = Math.max(...config.rows.map((r) => r.value))
+
+  return (
+    <Frame caption={config.caption} note={config.note}>
+      <div ref={ref} className="flex flex-col gap-4">
+        {config.rows.map((r, i) => {
+          const pct = (r.value / max) * 100
+          return (
+            <div key={r.label}>
+              <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                <span className="font-mono text-[12px]" style={{ color: 'var(--text)' }}>
+                  {r.label}
+                </span>
+                <span
+                  className="font-mono text-[10px] uppercase tracking-[0.1em] shrink-0"
+                  style={{ color: 'var(--accent-ink)' }}
+                >
+                  {r.verdict}
+                </span>
+              </div>
+              <div className="grid grid-cols-[1fr_86px] items-center gap-3">
+                <div className="relative h-6">
+                  <div className="absolute inset-0 rounded-md" style={{ background: 'var(--chart-track)' }} />
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-md"
+                    style={{
+                      width: inView ? `${Math.max(pct, 1.5)}%` : '0%',
+                      background: 'linear-gradient(90deg, var(--red-ink, #e5544b), var(--ember))',
+                      transition: REDUCED_MOTION
+                        ? 'none'
+                        : `width 1.05s cubic-bezier(0.22,1,0.36,1) ${i * 0.09}s`,
+                    }}
+                  />
+                </div>
+                <span className="font-mono text-[12.5px] tabular-nums text-right whitespace-nowrap">
+                  ${r.value.toFixed(2)}
+                </span>
+              </div>
+              <div
+                className="font-mono text-[10px] mt-1.5"
+                style={{ color: 'var(--faint)' }}
+              >
+                {r.calls} {r.calls === 1 ? 'call' : 'calls'} · 0 qualified
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <DataTable
+        caption={config.caption}
+        head={['Keyword', 'Spend', 'Calls', 'Qualified cases', 'Recommended action']}
+        rows={config.rows.map((r) => [r.label, `$${r.value.toFixed(2)}`, String(r.calls), '0', r.verdict])}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
+   7. SIGNAL GAP — reported conversions vs real outcomes
+   ========================================================================== */
+
+export function SignalGap({ config }) {
+  const [ref, inView] = useInView(0.35)
+  return (
+    <Frame caption={config.caption}>
+      <div ref={ref} className="grid grid-cols-2 gap-3">
+        <div
+          className="rounded-2xl px-5 py-6 text-center"
+          style={{ background: 'var(--bg-soft)', border: '1px solid var(--line)' }}
+        >
+          <div
+            className="font-display font-bold text-[40px] leading-none tabular-nums"
+            style={{
+              color: 'var(--dim)',
+              opacity: inView ? 1 : 0,
+              transition: REDUCED_MOTION ? 'none' : 'opacity .6s ease',
+            }}
+          >
+            {config.reported}
+          </div>
+          <div
+            className="font-mono text-[9.5px] uppercase tracking-[0.14em] mt-3 leading-relaxed"
+            style={{ color: 'var(--faint)' }}
+          >
+            Conversions
+            <br />
+            Google reported
+          </div>
+        </div>
+        <div
+          className="rounded-2xl px-5 py-6 text-center"
+          style={{
+            background: 'color-mix(in srgb, var(--ember) 9%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--ember) 40%, transparent)',
+          }}
+        >
+          <div
+            className="font-display font-bold text-[40px] leading-none tabular-nums"
+            style={{
+              color: 'var(--ember)',
+              opacity: inView ? 1 : 0,
+              transition: REDUCED_MOTION ? 'none' : 'opacity .6s ease .2s',
+            }}
+          >
+            {config.real}
+          </div>
+          <div
+            className="font-mono text-[9.5px] uppercase tracking-[0.14em] mt-3 leading-relaxed"
+            style={{ color: 'var(--accent-ink)' }}
+          >
+            Cases the
+            <br />
+            firm took
+          </div>
+        </div>
+      </div>
+      <p className="mt-4 text-[13px] leading-relaxed" style={{ color: 'var(--dim)' }}>
+        {config.note}
+      </p>
+      <DataTable
+        caption={config.caption}
+        head={['Measure', 'Count']}
+        rows={[['Conversions Google reported', String(config.reported)], ['Cases the firm took', String(config.real)]]}
+      />
+    </Frame>
+  )
+}
+
+/* ==========================================================================
+   8. PAIRED BARS — two measured windows side by side
+   ========================================================================== */
+
+export function PairedBars({ caption, note, groups }) {
+  const [ref, inView] = useInView(0.25)
+  return (
+    <Frame caption={caption} note={note}>
+      <div ref={ref} className="flex flex-col gap-5">
+        {groups.map((g, i) => {
+          const max = Math.max(g.a, g.b)
+          return (
+            <div key={g.label}>
+              <div
+                className="font-mono text-[10px] uppercase tracking-[0.1em] mb-2"
+                style={{ color: 'var(--dim)' }}
+              >
+                {g.label}
+              </div>
+              {[
+                { v: g.a, name: g.aName, hi: false },
+                { v: g.b, name: g.bName, hi: true },
+              ].map((row, j) => (
+                <div key={j} className="grid grid-cols-[64px_1fr_74px] items-center gap-3 mb-1.5">
+                  <span className="font-mono text-[9.5px] uppercase tracking-[0.1em]" style={{ color: 'var(--faint)' }}>
+                    {row.name}
+                  </span>
+                  <div className="relative h-[22px]">
+                    <div className="absolute inset-0 rounded-md" style={{ background: 'var(--chart-track)' }} />
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-md"
+                      style={{
+                        width: inView ? `${(row.v / max) * 100}%` : '0%',
+                        background: row.hi
+                          ? 'linear-gradient(90deg, var(--ember), var(--gold))'
+                          : 'color-mix(in srgb, var(--ember) 28%, transparent)',
+                        boxShadow: row.hi ? '0 0 20px -8px var(--ember)' : 'none',
+                        transition: REDUCED_MOTION
+                          ? 'none'
+                          : `width 1.05s cubic-bezier(0.22,1,0.36,1) ${(i * 2 + j) * 0.07}s`,
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="font-mono text-[12px] tabular-nums text-right whitespace-nowrap"
+                    style={{ color: row.hi ? 'var(--text)' : 'var(--dim)' }}
+                  >
+                    {g.fmt ? g.fmt(row.v) : compact(row.v)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )
+        })}
+      </div>
+      <DataTable
+        caption={caption}
+        head={['Metric', groups[0].aName, groups[0].bName]}
+        rows={groups.map((g) => [g.label, g.fmt ? g.fmt(g.a) : String(g.a), g.fmt ? g.fmt(g.b) : String(g.b)])}
       />
     </Frame>
   )
